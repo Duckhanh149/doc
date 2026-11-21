@@ -15,12 +15,15 @@ const translate = byId("translate");
 const copy = byId("copy");
 const status = byId("status");
 let pending;
+let detectedSource;
+
+source.add(new Option("Tự nhận diện", "auto"));
 
 for (const [code, name] of Object.entries(languages)) {
   source.add(new Option(name, code));
   target.add(new Option(name, code));
 }
-source.value = "en";
+source.value = "auto";
 target.value = "vi";
 
 function showStatus(message = "", error = false) {
@@ -36,10 +39,29 @@ function setOutput(text = "") {
 function resetResult() {
   pending?.abort();
   pending = undefined;
+  detectedSource = undefined;
   translate.disabled = false;
   byId("count").textContent = `${input.value.length} / ${input.maxLength}`;
   setOutput();
   showStatus();
+}
+
+function detectSource(text) {
+  const sample = text.trim().slice(0, 900).normalize("NFC");
+  if (/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(sample)) return "ja";
+  if (/\p{Script=Hangul}/u.test(sample)) return "ko";
+  if (/\p{Script=Han}/u.test(sample)) {
+    return /[體國語學臺灣歡謝這個們來說話譯萬與為會時點開關]/u.test(sample) ? "zh-TW" : "zh-CN";
+  }
+  if (/[ăđơưặằẳẵắợờởỡớựừửữứạảẹẻẽịỉọỏụủỵỷỹ]/iu.test(sample)) return "vi";
+  const letters = sample.match(/\p{Letter}/gu)?.length ?? 0;
+  if (letters < 3) return undefined;
+  if (/^hello[.!?\s]*$/iu.test(sample)) return "en";
+  const [best, next] = ThongNguDetector.detectAll(sample);
+  if (!best || (letters < 10 && best.accuracy - (next?.accuracy ?? 0) < 0.03)) {
+    return undefined;
+  }
+  return Object.hasOwn(languages, best.lang) ? best.lang : undefined;
 }
 
 function splitText(text) {
@@ -102,16 +124,23 @@ byId("translator").addEventListener("submit", async event => {
     showStatus("Anh nhập nội dung cần dịch nhé.", true);
     return;
   }
-  const from = source.value;
+  const from = source.value === "auto" ? detectSource(text) : source.value;
+  if (!from) {
+    showStatus("Chưa nhận diện được ngôn ngữ. Anh thử nhập thêm vài từ hoặc chọn ngôn ngữ nguồn.", true);
+    return;
+  }
+  detectedSource = from;
+  const detectedLabel = source.value === "auto" ? "Đã nhận diện " + languages[from] + ". " : "";
   const to = target.value;
   if (from === to) {
     setOutput(text);
+    showStatus(detectedLabel.trim());
     return;
   }
   const request = new AbortController();
   pending = request;
   translate.disabled = true;
-  showStatus("Đang dịch…");
+  showStatus(detectedLabel + "Đang dịch…");
   try {
     const results = [];
     for (const piece of splitText(text)) {
@@ -119,7 +148,7 @@ byId("translator").addEventListener("submit", async event => {
     }
     if (pending === request) {
       setOutput(results.join(""));
-      showStatus("Đã dịch xong.");
+      showStatus(detectedLabel + "Đã dịch xong.");
     }
   } catch (error) {
     if (pending === request) {
@@ -148,7 +177,12 @@ byId("swap").addEventListener("click", () => {
     showStatus("Bản dịch dài hơn giới hạn ô nhập nên chưa thể đảo chiều.", true);
     return;
   }
-  [source.value, target.value] = [target.value, source.value];
+  const from = source.value === "auto" ? detectedSource ?? detectSource(input.value) : source.value;
+  if (!from) {
+    showStatus("Anh nhập văn bản hoặc chọn ngôn ngữ nguồn trước khi đảo chiều.", true);
+    return;
+  }
+  [source.value, target.value] = [target.value, from];
   if (output.value) input.value = output.value;
   resetResult();
 });
