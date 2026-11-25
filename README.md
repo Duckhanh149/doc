@@ -5,10 +5,10 @@
 ## Cài đặt trên Windows
 
 1. Tải [Thong-Ngu-Setup.exe](https://github.com/Duckhanh149/doc/raw/refs/heads/main/Thong-Ngu-Setup.exe) rồi mở tệp và chọn **Yes** để cài.
-2. Tìm **Thông Ngữ** trong Start Menu. Ứng dụng mở bằng trình duyệt mặc định.
+2. Tìm **Thong Ngu** trong Start Menu. Ứng dụng mở bằng trình duyệt mặc định.
 3. Nhập văn bản hoặc mở tệp UTF-8 .txt, chọn ngôn ngữ đích rồi bấm **Dịch văn bản**.
 
-Bộ cài chạy dưới tài khoản Windows hiện tại và không yêu cầu quyền quản trị. Để gỡ thủ công, xóa thư mục `%LOCALAPPDATA%\Programs\Thong Ngu` và lối tắt **Thông Ngữ** trong `shell:programs`.
+Bộ cài chạy dưới tài khoản Windows hiện tại và không yêu cầu quyền quản trị. Để gỡ thủ công, xóa thư mục `%LOCALAPPDATA%\Programs\Thong Ngu` và lối tắt **Thong Ngu** trong `shell:programs`.
 
 Bản [ZIP portable](https://github.com/Duckhanh149/doc/raw/refs/heads/main/Thong-Ngu-Windows.zip) cũng có sẵn. Giải nén toàn bộ rồi mở `Mo Thong Ngu.cmd` hoặc `index.html`.
 

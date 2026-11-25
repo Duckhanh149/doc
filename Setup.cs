@@ -19,7 +19,7 @@ internal static class Setup
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Programs", "Thong Ngu");
         string shortcut = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Thông Ngữ.lnk");
+            Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Thong Ngu.lnk");
         if (MessageBox.Show("Cài hoặc cập nhật Thông Ngữ cho tài khoản Windows hiện tại?",
                 title, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             return;
@@ -40,6 +40,7 @@ internal static class Setup
                 File.Copy(Path.Combine(staging, name), Path.Combine(destination, name), true);
 
             string app = Path.Combine(destination, "index.html");
+            Directory.CreateDirectory(Path.GetDirectoryName(shortcut));
             dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"));
             dynamic link = shell.CreateShortcut(shortcut);
             link.TargetPath = app;
@@ -47,7 +48,7 @@ internal static class Setup
             link.Description = "Mở Thông Ngữ";
             link.Save();
 
-            if (MessageBox.Show("Đã cài đặt. Anh có thể tìm Thông Ngữ trong Start Menu.\n\nMở ứng dụng ngay?",
+            if (MessageBox.Show("Đã cài đặt. Anh có thể tìm Thong Ngu trong Start Menu.\n\nMở ứng dụng ngay?",
                     title, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 Process.Start(new ProcessStartInfo(app) { UseShellExecute = true });
         }
