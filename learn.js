@@ -132,17 +132,6 @@
     el("saved-words").replaceChildren(...items);
   }
 
-  function showView(learn) {
-    el("translate-view").hidden = learn;
-    el("learn-view").hidden = !learn;
-    el("nav-translate").setAttribute("aria-pressed", String(!learn));
-    el("nav-learn").setAttribute("aria-pressed", String(learn));
-    (learn ? dictionaryWord : el("input")).focus();
-  }
-
-  el("nav-translate").addEventListener("click", () => showView(false));
-  el("nav-learn").addEventListener("click", () => showView(true));
-
   function readDictionaryResponse(word, response) {
     const definitions = [];
     const seen = new Set();

@@ -8,7 +8,7 @@ using System.Windows.Forms;
 internal static class Setup
 {
     private static readonly string[] AppFiles = {
-        "index.html", "style.css", "app.js", "learn.js", "detector.js", "Detector-Licenses.txt", "README.md",
+        "index.html", "style.css", "app.js", "learn.js", "course.js", "detector.js", "Detector-Licenses.txt", "README.md",
         "Thong Ngu.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll",
         "WebView2Loader.dll", "WebView2-License.txt", "WebView2-Notice.txt"
     };
