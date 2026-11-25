@@ -50,3 +50,41 @@ footer { margin-top: 18px; }
   .panels { grid-template-columns: 1fr; }
   textarea { min-height: 140px; }
 }
+
+[hidden] { display: none !important; }
+.app-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.app-nav button[aria-pressed="true"], .lookup-row button, #start-study, #remember-study {
+  background: #164e42;
+  border-color: #164e42;
+  color: white;
+}
+.app-nav button[aria-pressed="true"]:hover, .lookup-row button:hover, #start-study:hover, #remember-study:hover {
+  background: #206555;
+}
+.learn-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; align-items: start; }
+.learn-card { background: white; padding: 20px; }
+.learn-card h2 { font-size: 1.25rem; margin: 0 0 14px; }
+#dictionary-form { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+.lookup-row { display: flex; gap: 8px; margin-top: 6px; }
+.lookup-row input { min-width: 0; flex: 1; padding: 9px 10px; border: 1px solid #cbd7ce; border-radius: 9px; background: #f8faf7; font: inherit; }
+.word-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.word-heading h3, #study-word { font-size: 1.65rem; margin: 4px 0; font-weight: 750; }
+#entry-example, #entry-ipa, #study-answer em { color: #52635e; }
+.word-meaning { color: #164e42; font-weight: 650; }
+#entry-vietnamese:empty, #entry-example:empty, #entry-definitions:empty, #dictionary-status:empty, #study-status:empty { display: none; }
+#entry-definitions { padding-inline-start: 22px; }
+#entry-definitions li + li { margin-top: 6px; }
+#dictionary-status, #study-status { font-size: .9rem; color: #52635e; }
+#dictionary-status.error { color: #a02929; }
+#start-study { align-self: start; margin-top: 10px; }
+#study-card { margin-top: 10px; background: #eff6f0; padding: 14px; border-radius: 12px; }
+#study-card .controls { margin-top: 10px; }
+#study-answer p { margin: 0 0 6px; }
+.saved-card { margin-top: 14px; }
+#saved-words { list-style: none; padding: 0; margin: 0; }
+#saved-words li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid #dbe3dc; }
+#saved-words .saved-remove { margin-inline-start: auto; }
+@media (max-width: 700px) {
+  .learn-grid { grid-template-columns: 1fr; }
+  .learn-card { padding: 14px; }
+}

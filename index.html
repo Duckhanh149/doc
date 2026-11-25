@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="detector.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="learn.js" defer></script>
 </head>
 <body>
   <main>
@@ -14,6 +15,12 @@
       <span class="mark" aria-hidden="true">A<span>文</span></span>
       <span>Thông Ngữ</span>
     </header>
+
+    <nav class="app-nav" aria-label="Chức năng">
+      <button type="button" id="nav-translate" aria-pressed="true" aria-controls="translate-view">Dịch văn bản</button>
+      <button type="button" id="nav-learn" aria-pressed="false" aria-controls="learn-view">Từ điển &amp; học tiếng Anh</button>
+    </nav>
+    <div id="translate-view">
     <h1>Dịch văn bản</h1>
     <p class="intro">Nhập văn bản hoặc mở tệp .txt để bắt đầu.</p>
     <form id="translator">
@@ -44,6 +51,65 @@
       </div>
     </form>
     <footer>Cần kết nối Internet. Văn bản được gửi đến MyMemory khi anh bấm dịch.</footer>
+
+    </div>
+    <div id="learn-view" hidden>
+      <h1>Từ điển tiếng Anh</h1>
+      <p class="intro">Tra từ, nghe phát âm và ôn lại những từ anh muốn nhớ.</p>
+      <div class="learn-grid">
+        <section class="learn-card">
+          <h2>Tra từ</h2>
+          <form id="dictionary-form">
+            <label for="dictionary-word">Từ tiếng Anh</label>
+            <div class="lookup-row">
+              <input id="dictionary-word" type="search" placeholder="Ví dụ: improve" maxlength="64" required autocomplete="off" lang="en">
+              <button type="submit">Tra từ</button>
+            </div>
+          </form>
+          <p id="dictionary-status" role="status"></p>
+          <div id="dictionary-result" hidden>
+            <div class="word-heading">
+              <h3 id="entry-word" lang="en"></h3>
+              <span id="entry-ipa" lang="en"></span>
+            </div>
+            <p id="entry-vietnamese" class="word-meaning"></p>
+            <p id="entry-example" lang="en"></p>
+            <ol id="entry-definitions" lang="en"></ol>
+            <div class="controls">
+              <button type="button" id="hear-word">Nghe phát âm</button>
+              <button type="button" id="translate-meaning">Dịch nghĩa tiếng Việt</button>
+              <button type="button" id="save-word">Lưu từ</button>
+            </div>
+          </div>
+        </section>
+        <section class="learn-card">
+          <h2>Ôn thẻ từ</h2>
+          <label for="study-deck">Bộ từ</label>
+          <select id="study-deck">
+            <option value="starter">Tiếng Anh hằng ngày</option>
+            <option value="saved">Từ đã lưu</option>
+          </select>
+          <button type="button" id="start-study">Bắt đầu ôn</button>
+          <p id="study-status" role="status"></p>
+          <div id="study-card" hidden>
+            <p id="study-word" lang="en"></p>
+            <div id="study-answer" hidden></div>
+            <div class="controls">
+              <button type="button" id="study-hear">Nghe từ</button>
+              <button type="button" id="reveal-study">Hiện nghĩa</button>
+              <button type="button" id="repeat-study" hidden>Ôn lại</button>
+              <button type="button" id="remember-study" hidden>Đã nhớ</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <section class="learn-card saved-card">
+        <h2>Từ đã lưu</h2>
+        <p id="saved-empty">Những từ anh lưu khi tra sẽ xuất hiện ở đây.</p>
+        <ul id="saved-words"></ul>
+      </section>
+      <footer>Tra từ trực tuyến qua Free Dictionary API. Bộ từ hằng ngày và từ đã lưu có thể ôn trên máy.</footer>
+    </div>
   </main>
 </body>
 </html>
