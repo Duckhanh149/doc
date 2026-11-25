@@ -3,9 +3,16 @@
 Ứng dụng dịch văn bản với 16 lựa chọn ngôn ngữ. Chế độ **Tự nhận diện** được chọn sẵn cho ngôn ngữ nguồn. Anh chỉ cần chọn ngôn ngữ đích. Với chữ viết tắt, câu quá ngắn hoặc nội dung pha nhiều ngôn ngữ, anh có thể nhập thêm văn bản hoặc chọn nguồn thủ công.
 
 
+
+## Kế hoạch 24 tuần
+
+Màn hình chính có **24 chủ đề và 120 buổi ngắn**, từ Pre-A1 đến IELTS. Mỗi tuần gồm gợi nhớ từ vựng, đọc hiểu, nghe hiểu, nói và viết, rồi kiểm tra cuối tuần. Có thể học nhanh hoặc chậm hơn một tuần lịch. App mở buổi đầu tiên chưa hoàn thành và giữ bài viết trên máy. Dùng **Lộ trình học** để mở bài nền tảng và bài luyện IELTS riêng theo kỹ năng.
+
+**Ôn lại tuần này** mở bộ thẻ của tuần đang chọn. Từ và câu hỏi đã xử lý có lịch ôn giãn dần theo mốc 1, 3, 7, 14, 30, 60 và 90 ngày. Câu làm sai vào mục **Ôn thẻ đến hạn** ngay. Sau tuần 24, anh vẫn có thể ôn theo lịch hoặc quay lại bất kỳ tuần nào. Bài nghe dùng giọng đọc của hệ thống. Bài nói và viết có mẫu để tự đối chiếu.
+
 ## Lộ trình học từ mất gốc đến IELTS
 
-App mở vào **Lộ trình học**. Phần nền tảng tham chiếu CEFR và có bảy bài A1 cũ cùng các bài mới từ Pre-A1 tới B2. Mỗi chặng có mục tiêu và bài nghe, đọc, gợi nhớ, chính tả, nói và viết tương ứng.
+Mở tab **Lộ trình học** để chọn chặng. Phần nền tảng tham chiếu CEFR và có bảy bài A1 cũ cùng các bài mới từ Pre-A1 tới B2. Mỗi chặng có mục tiêu và bài nghe, đọc, gợi nhớ, chính tả, nói và viết tương ứng.
 
 - **Pre-A1 và A1** — chữ cái, đánh vần, số, thông tin cá nhân và tương tác quen thuộc.
 - **A2** — hiểu thông báo, kể việc đã làm và viết tin nhắn.

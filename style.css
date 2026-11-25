@@ -213,3 +213,19 @@ button:hover:not(:disabled), .file:hover { background: #e3f2ea; }
 .exam-result:not(:empty) { margin-top: 12px; padding: 12px; background: #eff7f3; border-radius: 11px; }
 .exam-result ol, #course-content > ul, #course-content > ol { padding-inline-start: 24px; }
 #course-content li + li { margin-top: 6px; }
+
+#plan-week-progress, #plan-step { color: var(--muted); font-size: .88rem; }
+#plan-sessions { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 4px; }
+#plan-sessions button { display: flex; width: 100%; text-align: left; justify-content: space-between; gap: 8px; border-color: transparent; color: var(--ink); font-size: .88rem; }
+#plan-sessions button[aria-current="true"] { background: #e0f4e8; border-color: #c2e7d2; color: #0d513e; }
+#plan-sessions small { color: var(--accent-dark); white-space: nowrap; }
+#plan-due, #plan-review-week { align-self: flex-start; font-size: .82rem; margin-top: 6px; }
+#plan-controls { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+#plan-status:empty, .plan-quiz [role="status"]:empty { display: none; }
+.plan-passage, .plan-quiz { background: #eff7f3; border: 1px solid #d9e8e1; padding: 12px; border-radius: 11px; margin: 12px 0; }
+.plan-quiz p:first-child { margin-top: 0; }
+.plan-quiz p:last-child { margin-bottom: 0; }
+#plan-activity label { display: block; margin: 12px 0 6px; }
+#plan-activity textarea, #plan-activity input { width: 100%; min-height: 0; font: inherit; background: #f7fbf8; border: 1px solid #c8dad3; border-radius: 9px; padding: 8px 10px; margin: 0 0 9px; }
+#plan-activity details { margin: 12px 0; }
+#plan-activity summary { cursor: pointer; color: var(--accent-dark); font-weight: 650; }

@@ -10,6 +10,8 @@
   <script src="learn.js" defer></script>
   <script src="roadmap.js" defer></script>
   <script src="course.js" defer></script>
+  <script src="study-weeks.js" defer></script>
+  <script src="study-plan.js" defer></script>
 </head>
 <body>
   <main>
@@ -19,7 +21,8 @@
     </header>
 
     <nav class="app-nav" aria-label="Chức năng">
-      <button type="button" id="nav-course" aria-pressed="true" aria-controls="course-view">Lộ trình học</button>
+      <button type="button" id="nav-study" aria-pressed="true" aria-controls="study-view">Kế hoạch 24 tuần</button>
+      <button type="button" id="nav-course" aria-pressed="false" aria-controls="course-view">Lộ trình học</button>
       <button type="button" id="nav-translate" aria-pressed="false" aria-controls="translate-view">Dịch văn bản</button>
       <button type="button" id="nav-learn" aria-pressed="false" aria-controls="learn-view">Từ điển &amp; thẻ từ</button>
     </nav>
@@ -114,7 +117,7 @@
       <footer>Tra từ trực tuyến qua Free Dictionary API. Bộ từ hằng ngày và từ đã lưu có thể ôn trên máy.</footer>
     </div>
 
-    <div id="course-view">
+    <div id="course-view" hidden>
       <div class="course-header">
         <div>
           <h1>Lộ trình tiếng Anh</h1>
@@ -147,6 +150,31 @@
             <button type="button" id="course-back">Quay lại</button>
             <button type="button" id="course-next" class="primary">Tiếp theo</button>
           </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="study-view">
+      <div class="course-header">
+        <div><h1>Kế hoạch 24 tuần</h1><p class="intro">Học theo nhịp của anh, mỗi tuần năm buổi ngắn.</p></div>
+        <p id="study-plan-summary" aria-live="polite"></p>
+      </div>
+      <div class="course-layout">
+        <section class="learn-card course-lessons">
+          <h2>Tuần học</h2>
+          <label for="plan-week">Chọn tuần</label>
+          <select id="plan-week"></select>
+          <p id="plan-week-progress"></p>
+          <ol id="plan-sessions"></ol>
+          <button type="button" id="plan-due">Ôn thẻ đến hạn</button>
+          <button type="button" id="plan-review-week">Ôn lại tuần này</button>
+        </section>
+        <section class="learn-card course-activity" aria-labelledby="plan-title">
+          <h2 id="plan-title" tabindex="-1"></h2>
+          <p id="plan-step"></p>
+          <div id="plan-activity"></div>
+          <p id="plan-status" role="status"></p>
+          <div id="plan-controls" class="course-actions"></div>
         </section>
       </div>
     </div>

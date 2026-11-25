@@ -587,16 +587,16 @@
     }
   });
 
-  for (const name of ["course", "translate", "learn"]) {
+  for (const name of ["study", "course", "translate", "learn"]) {
     el("nav-" + name).addEventListener("click", () => {
       stopAudio();
-      for (const panel of ["course", "translate", "learn"]) {
+      for (const panel of ["study", "course", "translate", "learn"]) {
         const active = panel === name;
         el(panel + "-view").hidden = !active;
         el("nav-" + panel).setAttribute("aria-pressed", String(active));
       }
       if (name === "course") updateSummary();
-      else el(name === "translate" ? "input" : "dictionary-word").focus();
+      else if (name !== "study") el(name === "translate" ? "input" : "dictionary-word").focus();
     });
   }
 
