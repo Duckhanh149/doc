@@ -189,3 +189,27 @@ button:hover:not(:disabled), .file:hover { background: #e3f2ea; }
   #lesson-list { grid-template-columns: repeat(auto-fit, minmax(min(135px, 100%), 1fr)); }
   #lesson-list button { flex-wrap: wrap; gap: 0 4px; }
 }
+
+/* Roadmap and IELTS exercises */
+#stage-goal { color: var(--muted); font-size: .88rem; margin: 10px 0 12px; }
+#ielts-track-field { margin: 0 0 12px; }
+#course-review-actions { margin-top: 6px; }
+#review-stage { font-size: .82rem; }
+#course-content .exam-timer {
+  margin: 12px 0; padding: 9px 11px; background: #edf5f1; border-radius: 10px;
+}
+.exam-timer span { font-variant-numeric: tabular-nums; color: var(--accent-dark); font-weight: 650; font-size: .9rem; }
+#course-content .exam-passage {
+  padding: 13px 15px; background: #eff7f3; border-radius: 11px; line-height: 1.65;
+}
+#course-content input {
+  width: 100%; font: inherit; margin-top: 6px; padding: 9px 10px;
+  border: 1px solid #c8dad3; border-radius: 9px; background: #f7fbf8;
+}
+#course-content table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+#course-content th, #course-content td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #d6e4df; }
+#course-content th { background: #e8f3ee; }
+.exam-grade { margin-top: 13px; }
+.exam-result:not(:empty) { margin-top: 12px; padding: 12px; background: #eff7f3; border-radius: 11px; }
+.exam-result ol, #course-content > ul, #course-content > ol { padding-inline-start: 24px; }
+#course-content li + li { margin-top: 6px; }

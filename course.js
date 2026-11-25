@@ -72,6 +72,9 @@
     }
   ];
 
+  // Keep the original A1 indices so previous installations retain progress.
+  lessons.push(...roadmap.units);
+
   const el = id => document.getElementById(id);
   const content = el("course-content");
   const next = el("course-next");
@@ -80,6 +83,12 @@
   const stepNames = ["Nghe và đọc", "Gợi nhớ từ vựng", "Nghe và chép", "Nói và viết"];
   const storageKey = "thong-ngu-course-v1";
   const allWords = new Map(lessons.flatMap(lesson => lesson.words));
+  for (const lesson of lessons) {
+    if (lesson.task?.kind !== "quiz") continue;
+    for (const [question, answer, , explanation] of lesson.task.questions) {
+      allWords.set(question, answer + " · " + explanation);
+    }
+  }
   const intervals = [1, 3, 7, 14, 30];
   let progress = { completed: [], review: {} };
 
@@ -96,16 +105,29 @@
     return Number.isFinite(progress.review[word]?.due) && progress.review[word].due <= now;
   }
 
-  function nextLesson() {
-    const index = lessons.findIndex((_, id) => !progress.completed.includes(id));
-    return index < 0 ? 0 : index;
+
+  function idsForStage(id, track = examTrack) {
+    return lessons.flatMap((lesson, index) => {
+      const matches = (lesson.stage ?? "a1") === id &&
+        (!lesson.track || lesson.track === "Cả hai" || lesson.track === track);
+      return matches ? [index] : [];
+    });
   }
 
+  function nextLesson() {
+    const ordered = roadmap.stages.flatMap(stage => idsForStage(stage.id));
+    return ordered.find(id => !progress.completed.includes(id)) ?? ordered[0];
+  }
+
+  let examTrack = progress.track === "General Training" ? progress.track : "Academic";
   let lessonId = nextLesson();
+  let stageId = lessons[lessonId].stage ?? "a1";
   let step = 0;
   let round;
-  let draft = { dictation: "", output: "" };
-  let reviewOnly = false;
+  let draft = { dictation: "", output: "", answers: [], deadline: 0 };
+  let reviewMode = "";
+  let clock;
+  let beforeReview;
 
   function element(tag, text, lang) {
     const node = document.createElement(tag);
@@ -147,10 +169,12 @@
   }
 
   function updateSummary() {
-    el("course-summary").textContent = progress.completed.length + " / " + lessons.length + " bài đã học";
+    const ids = idsForStage(stageId);
+    const completed = ids.filter(id => progress.completed.includes(id)).length;
+    el("course-summary").textContent = completed + " / " + ids.length + " bài trong chặng";
     const due = dueWords().length;
     const review = el("review-due");
-    review.textContent = due ? "Ôn " + due + " từ đến hạn" : "Chưa có từ đến hạn";
+    review.textContent = due ? "Ôn " + due + " thẻ đến hạn" : "Chưa có thẻ đến hạn";
     review.disabled = !due;
   }
 
@@ -176,13 +200,18 @@
   }
 
   function renderLessons() {
-    const items = lessons.map((lesson, index) => {
+    const stage = roadmap.stages.find(item => item.id === stageId);
+    el("course-stage").value = stageId;
+    el("stage-goal").textContent = stage.goal;
+    el("ielts-track-field").hidden = stageId !== "ielts";
+    el("ielts-track").value = examTrack;
+    const items = idsForStage(stageId).map(index => {
       const li = element("li");
-      const label = element("span", lesson.title);
+      const label = element("span", lessons[index].title);
       const state = element("small", progress.completed.includes(index) ? "Đã học" : "");
       const choose = button("", () => openLesson(index, true));
       choose.append(label, state);
-      if (!reviewOnly && index === lessonId) choose.setAttribute("aria-current", "true");
+      if (!reviewMode && index === lessonId) choose.setAttribute("aria-current", "true");
       li.append(choose);
       return li;
     });
@@ -192,12 +221,19 @@
 
   function openLesson(index, focus) {
     lessonId = index;
+    stageId = lessons[index].stage ?? "a1";
     step = 0;
     round = undefined;
-    draft = { dictation: "", output: "" };
-    reviewOnly = false;
+    draft = { dictation: "", output: "", answers: [], deadline: 0 };
+    reviewMode = "";
+    beforeReview = undefined;
     renderLessons();
     renderStep(focus);
+  }
+
+  function openStage(id) {
+    const ids = idsForStage(id);
+    openLesson(ids.find(index => !progress.completed.includes(index)) ?? ids[0], true);
   }
 
   function inputAndLabel(labelText, key) {
@@ -205,7 +241,7 @@
     const field = element("textarea", "", "en");
     field.id = "course-response";
     field.rows = 3;
-    field.maxLength = 1000;
+    field.maxLength = key === "output" ? 12000 : 1000;
     field.value = draft[key];
     field.addEventListener("input", () => { draft[key] = field.value; });
     label.htmlFor = field.id;
@@ -236,7 +272,7 @@
     const current = round.words[round.position];
     next.disabled = !!current;
     if (!current) {
-      content.append(element("p", "Đã hoàn thành lượt gợi nhớ. App sẽ đưa lại các từ khi đến hạn."));
+      content.append(element("p", "Đã hoàn thành lượt gợi nhớ. App sẽ đưa lại các thẻ khi đến hạn."));
       if (finished) next.textContent = "Về bài học";
       return;
     }
@@ -266,8 +302,8 @@
     actions.append(reveal, remembered, forgot);
     const term = element("p", word, "en");
     term.className = "course-term";
-    content.append(element("p", "Từ " + (round.position + 1) + " / " + round.words.length +
-      ". Thử tự nhớ nghĩa trước khi lật thẻ."), term, answer, actions);
+    content.append(element("p", "Thẻ " + (round.position + 1) + " / " + round.words.length +
+      ". Thử tự nhớ nghĩa hoặc đáp án trước khi lật."), term, answer, actions);
   }
 
   function normalize(text) {
@@ -300,33 +336,184 @@
       label, field, modelDisclosure("Xem một câu trả lời mẫu", lesson.sample, "en"), button("Nghe câu trả lời mẫu", () => speak(lesson.sample)));
   }
 
+
+  function examTimer(actions) {
+    const box = element("div");
+    box.className = "exam-timer course-actions";
+    const time = element("span", "Chưa bấm giờ");
+    time.setAttribute("role", "timer");
+    function tick() {
+      if (!draft.deadline) return;
+      const remaining = Math.max(0, Math.ceil((draft.deadline - Date.now()) / 1000));
+      const minutes = Math.floor(remaining / 60);
+      const seconds = String(remaining % 60).padStart(2, "0");
+      time.textContent = remaining ? "Còn " + minutes + ":" + seconds : "Hết giờ";
+      if (!remaining) {
+        status.textContent = "Hết giờ. Anh có thể xem lại phần đã làm.";
+        clearInterval(clock);
+      }
+    }
+    for (const [label, seconds] of actions) {
+      box.append(button(label, () => {
+        clearInterval(clock);
+        status.textContent = "";
+        draft.deadline = Date.now() + seconds * 1000;
+        clock = setInterval(tick, 250);
+        tick();
+      }));
+    }
+    box.append(time);
+    if (draft.deadline) {
+      clock = setInterval(tick, 250);
+      tick();
+    }
+    return box;
+  }
+
+  function normalizeExam(text) {
+    return text.toLowerCase().trim().replace(/\s+/g, " ");
+  }
+
+  function renderQuiz(task) {
+    content.append(element("p", task.instructions), examTimer([["Bắt đầu bấm giờ", task.seconds]]));
+    if (task.passage) {
+      const passage = element("p", task.passage, "en");
+      passage.className = "exam-passage";
+      content.append(passage);
+    }
+    if (task.audio) content.append(button("Nghe bài luyện", () => speak(task.audio, 0.95), "primary"));
+    const fields = task.questions.map(([question], index) => {
+      const label = element("label", (index + 1) + ". " + question, "en");
+      const field = element(task.options ? "select" : "input", "", "en");
+      if (task.options) {
+        field.add(new Option("Chọn đáp án", ""));
+        for (const value of task.options) field.add(new Option(value, value));
+      } else {
+        field.type = "text";
+        field.maxLength = 80;
+        field.autocomplete = "off";
+      }
+      field.id = "exam-answer-" + index;
+      label.htmlFor = field.id;
+      field.value = draft.answers[index] ?? "";
+      field.addEventListener("input", () => { draft.answers[index] = field.value; });
+      content.append(label, field);
+      return field;
+    });
+    const result = element("div");
+    result.className = "exam-result";
+    result.setAttribute("aria-live", "polite");
+    const submit = button("Chấm bài", () => {
+      let score = 0;
+      const feedback = task.questions.map(([question, answer, alternate, reason], index) => {
+        const correct = [answer, ...alternate].some(value => normalizeExam(value) === normalizeExam(fields[index].value));
+        if (correct) {
+          score++;
+          if (isDue(question)) markWord(question, true);
+        } else {
+          progress.review[question] = { level: -1, due: Date.now() };
+        }
+        return element("li", (correct ? "Đúng" : "Cần ôn") + " · " + answer + ". " + reason);
+      });
+      const list = element("ol");
+      list.append(...feedback);
+      result.replaceChildren(element("strong", score + " / " + fields.length + " câu đúng"), list);
+      if (task.audio) result.append(modelDisclosure("Xem lời nghe", task.audio, "en"));
+      updateSummary();
+      persist();
+    }, "primary");
+    submit.classList.add("exam-grade");
+    content.append(submit, result);
+  }
+
+  function renderWriting(task) {
+    content.append(element("p", task.instructions, "en"));
+    if (task.table) {
+      const table = element("table");
+      for (const [index, values] of task.table.entries()) {
+        const row = element("tr");
+        for (const value of values) row.append(element(index === 0 ? "th" : "td", value));
+        table.append(row);
+      }
+      content.append(table);
+    }
+    content.append(examTimer([["Bắt đầu " + task.seconds / 60 + " phút", task.seconds]]));
+    const [label, field] = inputAndLabel("Bài viết của anh", "output");
+    field.rows = 8;
+    const counter = element("p");
+    function updateCount() {
+      const count = field.value.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+      counter.textContent = count + " từ · Yêu cầu tối thiểu " + task.minimum + " từ";
+    }
+    field.addEventListener("input", updateCount);
+    updateCount();
+    content.append(label, field, counter, modelDisclosure("Xem gợi ý dàn bài", task.hint));
+  }
+
+  function renderSpeaking(task) {
+    content.append(element("p", "Trả lời thành tiếng. Bấm giờ riêng cho phần chuẩn bị và phần nói của Part 2."));
+    const prompts = element("ol");
+    for (const prompt of task.questions) prompts.append(element("li", prompt, "en"));
+    content.append(prompts, examTimer([["Chuẩn bị · 1 phút", 60], ["Nói · 2 phút", 120]]),
+      modelDisclosure("Xem gợi ý trả lời", task.hint));
+  }
+
+  function renderExam(task) {
+    if (task.kind === "quiz") renderQuiz(task);
+    else if (task.kind === "writing") renderWriting(task);
+    else renderSpeaking(task);
+  }
+
+  function renderExamReflection(task) {
+    const tips = {
+      quiz: ["Đối chiếu câu sai với chứng cứ hoặc lời nghe.", "Ghi lại bẫy khiến anh nhầm: giới hạn từ, chi tiết bị đính chính hoặc thông tin không có trong bài.",
+        "Các câu làm sai sẽ xuất hiện trong mục ôn thẻ."],
+      writing: ["Anh đã trả lời đủ mọi phần của đề và đạt số từ tối thiểu chưa?",
+        "Kiểm tra đoạn văn và từ nối, từ vựng, phạm vi cấu trúc và lỗi ngữ pháp.",
+        "Quay lại bài viết để sửa một đoạn. App đếm từ và hỗ trợ tự đối chiếu, còn chấm band cần đánh giá theo tiêu chí IELTS."],
+      speaking: ["Tự nghe lại nếu anh đã dùng công cụ ghi âm của mình. Chú ý độ trôi chảy và mạch lạc.",
+        "Kiểm tra từ vựng, phạm vi ngữ pháp và phát âm. Nói lại một lần, ưu tiên một điểm cần cải thiện.",
+        "App cung cấp câu hỏi và đồng hồ luyện tập. Anh tự đánh giá câu trả lời theo tiêu chí IELTS."]
+    };
+    content.append(element("p", "Dành một lượt để tự kiểm trước khi hoàn thành."));
+    const list = element("ul");
+    for (const tip of tips[task.kind]) list.append(element("li", tip));
+    content.append(list);
+  }
+
   function renderStep(focus = false) {
     stopAudio();
+    clearInterval(clock);
     status.textContent = "";
     content.replaceChildren();
     const lesson = lessons[lessonId];
     const title = el("lesson-title");
-    title.textContent = reviewOnly ? "Ôn từ đến hạn" : lesson.title;
-    el("course-step").textContent = reviewOnly ? "Ôn cách quãng" : (step + 1) + " / 4 · " + stepNames[step];
+    title.textContent = reviewMode ? (reviewMode === "due" ? "Ôn thẻ đến hạn" : "Ôn chặng này") : lesson.title;
+    const labels = lesson.task ? ["Làm quen dạng bài", "Gợi nhớ từ và kỹ thuật", "Thực hành IELTS", "Tự kiểm và rút kinh nghiệm"] : stepNames;
+    el("course-step").textContent = reviewMode ? (reviewMode === "due" ? "Ôn cách quãng" : "Gợi nhớ theo chặng") : (step + 1) + " / 4 · " + labels[step];
     const bar = el("course-progress");
-    bar.hidden = reviewOnly;
+    bar.hidden = reviewMode;
     bar.value = Math.min(step + 1, 4);
-    back.hidden = reviewOnly || step === 0 || step === 4;
+    back.hidden = reviewMode || step === 0 || step === 4;
     next.hidden = false;
     next.disabled = false;
     next.textContent = step === 3 ? "Hoàn thành bài" : step === 4 ? "Mở bài tiếp theo" : "Tiếp theo";
 
-    if (reviewOnly) renderRecall(round.words, true);
+    if (reviewMode) renderRecall(round.words, true);
+    else if (step === 0 && lesson.task) content.append(element("p", lesson.context));
     else if (step === 0) renderInput(lesson);
     else if (step === 1) renderRecall(lesson.words, false);
+    else if (step === 2 && lesson.task) renderExam(lesson.task);
     else if (step === 2) renderDictation(lesson);
+    else if (step === 3 && lesson.task) renderExamReflection(lesson.task);
     else if (step === 3) renderOutput(lesson);
     else {
       el("course-step").textContent = "Hoàn thành";
       content.append(element("p", "Anh đã hoàn thành bài “" + lesson.title + "”. Từ đã luyện sẽ có lịch ôn riêng."));
-      if (progress.completed.length === lessons.length) {
+      const activePath = roadmap.stages.flatMap(stage => idsForStage(stage.id));
+      if (activePath.every(id => progress.completed.includes(id))) {
         next.hidden = true;
-        content.append(element("p", "Anh đã học hết các bài. Chọn một bài để luyện lại hoặc ôn từ đến hạn khi có."));
+        content.append(element("p", "Anh đã học hết các bài trong lộ trình đã chọn. Anh có thể luyện lại hoặc ôn thẻ đến hạn."));
       }
     }
     if (focus) {
@@ -335,19 +522,50 @@
     }
   }
 
-  const review = button("Chưa có từ đến hạn", () => {
-    const words = dueWords();
+  function startReview(words, mode) {
     if (!words.length) return;
+    beforeReview ??= { round, step };
     round = { words, position: 0 };
-    reviewOnly = true;
+    reviewMode = mode;
     renderLessons();
     renderStep(true);
+  }
+
+  const stagePicker = el("course-stage");
+  for (const stage of roadmap.stages) stagePicker.add(new Option(stage.label, stage.id));
+  stagePicker.addEventListener("change", () => openStage(stagePicker.value));
+  el("ielts-track").addEventListener("change", event => {
+    examTrack = event.target.value;
+    progress.track = examTrack;
+    openStage("ielts");
+    persist();
   });
+
+  const review = button("Chưa có thẻ đến hạn", () => startReview(dueWords(), "due"));
   review.id = "review-due";
-  el("lesson-list").after(review);
+  const stageReview = button("Ôn chặng này", () => {
+    const cards = idsForStage(stageId).flatMap(index => {
+      const lesson = lessons[index];
+      const mistakes = (lesson.task?.kind === "quiz" ? lesson.task.questions : [])
+        .filter(([question]) => Object.hasOwn(progress.review, question))
+        .map(([question]) => [question, allWords.get(question)]);
+      return [...lesson.words, ...mistakes];
+    });
+    startReview([...new Map(cards)], "stage");
+  });
+  stageReview.id = "review-stage";
+  el("course-review-actions").append(review, stageReview);
 
   next.addEventListener("click", () => {
-    if (reviewOnly || step === 4) {
+    if (reviewMode) {
+      ({ round, step } = beforeReview);
+      beforeReview = undefined;
+      reviewMode = "";
+      renderLessons();
+      renderStep(true);
+      return;
+    }
+    if (step === 4) {
       openLesson(nextLesson(), true);
       return;
     }
@@ -363,7 +581,7 @@
     renderStep(true);
   });
   back.addEventListener("click", () => {
-    if (step > 0 && step < 4 && !reviewOnly) {
+    if (step > 0 && step < 4 && !reviewMode) {
       step--;
       renderStep(true);
     }
