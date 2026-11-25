@@ -8,7 +8,9 @@ using System.Windows.Forms;
 internal static class Setup
 {
     private static readonly string[] AppFiles = {
-        "index.html", "style.css", "app.js", "detector.js", "Detector-Licenses.txt", "README.md"
+        "index.html", "style.css", "app.js", "detector.js", "Detector-Licenses.txt", "README.md",
+        "Thong Ngu.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll",
+        "WebView2Loader.dll", "WebView2-License.txt", "WebView2-Notice.txt"
     };
 
     [STAThread]
@@ -39,12 +41,13 @@ internal static class Setup
             foreach (string name in AppFiles)
                 File.Copy(Path.Combine(staging, name), Path.Combine(destination, name), true);
 
-            string app = Path.Combine(destination, "index.html");
+            string app = Path.Combine(destination, "Thong Ngu.exe");
             Directory.CreateDirectory(Path.GetDirectoryName(shortcut));
             dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"));
             dynamic link = shell.CreateShortcut(shortcut);
             link.TargetPath = app;
             link.WorkingDirectory = destination;
+            link.IconLocation = app + ",0";
             link.Description = "Mở Thông Ngữ";
             link.Save();
 
