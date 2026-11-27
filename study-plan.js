@@ -99,7 +99,13 @@
 
   function renderSummary() {
     const done = Object.keys(state.completed).length;
-    el("study-plan-summary").textContent = done + " / " + studyWeeks.length * sessions.length + " buổi";
+    const total = studyWeeks.length * sessions.length;
+    const meter = el("plan-total-progress");
+    meter.max = total;
+    meter.value = done;
+    el("plan-level").textContent = studyWeeks[week].level;
+    el("plan-current-week").textContent = "Tuần " + (week + 1) + " · " + studyWeeks[week].title;
+    el("study-plan-summary").textContent = done + " / " + total + " buổi";
     const finished = sessions.filter((_, i) => state.completed[week + ":" + i]).length;
     el("plan-week-progress").textContent = finished + " / 5 buổi đã học";
     const due = dueCards().length;
@@ -134,7 +140,11 @@
     const list = sessions.map((label, index) => {
       const li = node("li");
       const choose = button("", () => open(week, index, true));
-      choose.append(node("span", label), node("small", state.completed[week + ":" + index] ? "Đã học" : ""));
+      const complete = !!state.completed[week + ":" + index];
+      const marker = node("span", complete ? "✓" : String(index + 1));
+      marker.className = "session-marker";
+      marker.setAttribute("aria-hidden", "true");
+      choose.append(marker, node("span", label), node("small", complete ? "Đã học" : ""));
       if (index === session && !mode) choose.setAttribute("aria-current", "true");
       li.append(choose);
       return li;

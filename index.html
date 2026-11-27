@@ -14,18 +14,21 @@
   <script src="study-plan.js" defer></script>
 </head>
 <body>
-  <main>
-    <header>
-      <span class="mark" aria-hidden="true">A<span>文</span></span>
+  <div class="app-shell">
+    <aside class="sidebar">
+    <header class="brand">
+      <span class="mark" aria-hidden="true">th<span>.</span></span>
       <span class="brand-name">Thông Ngữ</span>
     </header>
 
     <nav class="app-nav" aria-label="Chức năng">
-      <button type="button" id="nav-study" aria-pressed="true" aria-controls="study-view">Kế hoạch 24 tuần</button>
-      <button type="button" id="nav-course" aria-pressed="false" aria-controls="course-view">Lộ trình học</button>
-      <button type="button" id="nav-translate" aria-pressed="false" aria-controls="translate-view">Dịch văn bản</button>
-      <button type="button" id="nav-learn" aria-pressed="false" aria-controls="learn-view">Từ điển &amp; thẻ từ</button>
+      <button type="button" id="nav-study" aria-pressed="true" aria-controls="study-view"><span class="nav-icon" aria-hidden="true">▦</span>Kế hoạch 24 tuần</button>
+      <button type="button" id="nav-course" aria-pressed="false" aria-controls="course-view"><span class="nav-icon" aria-hidden="true">≡</span>Lộ trình học</button>
+      <button type="button" id="nav-translate" aria-pressed="false" aria-controls="translate-view"><span class="nav-icon" aria-hidden="true">⇄</span>Dịch văn bản</button>
+      <button type="button" id="nav-learn" aria-pressed="false" aria-controls="learn-view"><span class="nav-icon" aria-hidden="true">Aa</span>Từ điển &amp; thẻ từ</button>
     </nav>
+    </aside>
+    <main class="workspace">
     <div id="translate-view" hidden>
     <h1>Dịch văn bản</h1>
     <p class="intro">Nhập văn bản hoặc mở tệp .txt để bắt đầu.</p>
@@ -156,28 +159,41 @@
 
     <div id="study-view">
       <div class="course-header">
-        <div><h1>Kế hoạch 24 tuần</h1><p class="intro">Học theo nhịp của anh, mỗi tuần năm buổi ngắn.</p></div>
-        <p id="study-plan-summary" aria-live="polite"></p>
+        <div class="hero-copy">
+          <p id="plan-level" class="hero-level"></p>
+          <h1>Kế hoạch 24 tuần</h1>
+          <p id="plan-current-week" class="intro"></p>
+        </div>
+        <div class="hero-progress">
+          <label for="plan-total-progress">Tiến độ học</label>
+          <p id="study-plan-summary" aria-live="polite"></p>
+          <progress id="plan-total-progress" max="120" value="0"></progress>
+        </div>
       </div>
-      <div class="course-layout">
-        <section class="learn-card course-lessons">
-          <h2>Tuần học</h2>
-          <label for="plan-week">Chọn tuần</label>
-          <select id="plan-week"></select>
-          <p id="plan-week-progress"></p>
-          <ol id="plan-sessions"></ol>
-          <button type="button" id="plan-due">Ôn thẻ đến hạn</button>
-          <button type="button" id="plan-review-week">Ôn lại tuần này</button>
-        </section>
+      <div class="course-layout study-layout">
         <section class="learn-card course-activity" aria-labelledby="plan-title">
-          <h2 id="plan-title" tabindex="-1"></h2>
           <p id="plan-step"></p>
+          <h2 id="plan-title" tabindex="-1"></h2>
           <div id="plan-activity"></div>
           <p id="plan-status" role="status"></p>
           <div id="plan-controls" class="course-actions"></div>
         </section>
+        <aside class="study-tools">
+        <section class="learn-card course-lessons">
+          <label class="card-heading" for="plan-week">Buổi học trong tuần</label>
+          <select id="plan-week"></select>
+          <p id="plan-week-progress"></p>
+          <ol id="plan-sessions"></ol>
+        </section>
+        <section class="learn-card review-card">
+          <h2>Ôn tập</h2>
+          <button type="button" id="plan-due">Ôn thẻ đến hạn</button>
+          <button type="button" id="plan-review-week">Ôn lại tuần này</button>
+        </section>
+        </aside>
       </div>
     </div>
   </main>
+  </div>
 </body>
 </html>
